@@ -7,23 +7,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('catalog', '0003_product_price_validator'),
+        ("catalog", "0003_product_price_validator"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='category',
-            options={'ordering': ['name'], 'verbose_name_plural': 'categories'},
+            name="category",
+            options={"ordering": ["name"], "verbose_name_plural": "categories"},
         ),
         migrations.AddField(
-            model_name='category',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="category",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='category',
-            name='updated_at',
+            model_name="category",
+            name="updated_at",
             field=models.DateTimeField(auto_now=True),
         ),
     ]
