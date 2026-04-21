@@ -20,9 +20,7 @@ class StrictDjangoFilterBackend(DjangoFilterBackend):
         if filterset is None:
             return queryset
 
-        unknown = (
-            set(request.query_params) - set(filterset.filters) - _RESERVED_PARAMS
-        )
+        unknown = set(request.query_params) - set(filterset.filters) - _RESERVED_PARAMS
         if unknown:
             raise ValidationError(
                 {param: "Unknown filter parameter." for param in sorted(unknown)}
