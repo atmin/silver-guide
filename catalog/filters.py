@@ -1,4 +1,5 @@
 from collections import deque
+from typing import Any
 
 import django_filters
 from django.db.models import Q, QuerySet
@@ -6,7 +7,7 @@ from django.db.models import Q, QuerySet
 from .models import Category, Product
 
 
-def _children_map(rows: list[dict]) -> dict[int, list[int]]:
+def _children_map(rows: list[Any]) -> dict[int, list[int]]:
     """Build a parent_id → [child_id, ...] map from a flat list of category rows."""
     cm: dict[int, list[int]] = {}
     for r in rows:
