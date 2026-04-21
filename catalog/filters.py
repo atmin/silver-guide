@@ -6,20 +6,36 @@ from django.db.models import Q, QuerySet
 from .models import Category, Product
 
 
-def _descendant_ids(root_id: int) -> list[int]:
-    """BFS over all categories in memory, returns root_id plus all descendant IDs."""
-    all_categories = list(Category.objects.values("id", "parent_id"))
-    children_map: dict[int, list[int]] = {}
-    for cat in all_categories:
-        children_map.setdefault(cat["parent_id"], []).append(cat["id"])
+def _children_map(rows: list[dict]) -> dict[int, list[int]]:
+    """Build a parent_id → [child_id, ...] map from a flat list of category rows."""
+    cm: dict[int, list[int]] = {}
+    for r in rows:
+        cm.setdefault(r["parent_id"], []).append(r["id"])
+    return cm
 
+
+def _bfs(root_id: int, cm: dict[int, list[int]]) -> list[int]:
+    """Return root_id plus all descendant IDs via breadth-first traversal of cm."""
     result: list[int] = []
     queue: deque[int] = deque([root_id])
     while queue:
         current = queue.popleft()
         result.append(current)
-        queue.extend(children_map.get(current, []))
+        queue.extend(cm.get(current, []))
     return result
+
+
+def _descendant_ids_for_id(root_id: int) -> list[int]:
+    rows = list(Category.objects.values("id", "parent_id"))
+    return _bfs(root_id, _children_map(rows))
+
+
+def _descendant_ids_for_slug(slug: str) -> list[int] | None:
+    rows = list(Category.objects.values("id", "slug", "parent_id"))
+    for r in rows:
+        if r["slug"] == slug:
+            return _bfs(r["id"], _children_map(rows))
+    return None
 
 
 class ProductFilter(django_filters.FilterSet):
@@ -38,13 +54,12 @@ class ProductFilter(django_filters.FilterSet):
         return queryset.filter(Q(title__icontains=value) | Q(sku__icontains=value))
 
     def filter_category_id(self, queryset: QuerySet, name: str, value: int) -> QuerySet:
-        return queryset.filter(category_id__in=_descendant_ids(value))
+        return queryset.filter(category_id__in=_descendant_ids_for_id(value))
 
     def filter_category_slug(
         self, queryset: QuerySet, name: str, value: str
     ) -> QuerySet:
-        try:
-            root_id = Category.objects.values_list("id", flat=True).get(slug=value)
-        except Category.DoesNotExist:
+        ids = _descendant_ids_for_slug(value)
+        if ids is None:
             return queryset.none()
-        return queryset.filter(category_id__in=_descendant_ids(root_id))
+        return queryset.filter(category_id__in=ids)
