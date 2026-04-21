@@ -11,7 +11,12 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ["id", "name", "slug", "parent", "children"]
 
     def get_children(self, obj):
-        return CategorySerializer(obj.children.all(), many=True).data
+        depth = self.context.get("depth", 3)
+        if depth <= 0:
+            return []
+        return CategorySerializer(
+            obj.children.all(), many=True, context={"depth": depth - 1}
+        ).data
 
 
 class ProductSerializer(serializers.ModelSerializer):
