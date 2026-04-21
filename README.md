@@ -21,6 +21,12 @@ cp .env.example .env
 make up
 ```
 
+For a production-style run with gunicorn and `DEBUG=false`:
+
+```bash
+make prod
+```
+
 - App: http://localhost:8000
 - Admin: http://localhost:8000/admin/
 - Swagger UI: http://localhost:8000/api/schema/swagger-ui/

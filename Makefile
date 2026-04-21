@@ -4,7 +4,7 @@ PYTEST  = .venv/bin/pytest
 BLACK   = .venv/bin/black
 DOCKER ?= docker
 
-.PHONY: install migrate makemigrations dev up down reset-db logs test shell superuser seed seed-docker typecheck fmt fmt-check
+.PHONY: install migrate makemigrations dev up down reset-db logs test shell superuser seed seed-docker typecheck fmt fmt-check prod
 
 # Create virtual environment and install dependencies
 install:
@@ -75,6 +75,10 @@ superuser:
 # Seed the database with sample data; pass FLUSH=1 to wipe first
 seed:
 	$(DJANGO) seed $(if $(FLUSH),--flush,)
+
+# Run full stack with gunicorn and DEBUG off
+prod:
+	$(DOCKER) compose -f docker-compose.yml -f docker-compose.prod.yml up --build
 
 # Seed via Docker (no local venv needed); pass FLUSH=1 to wipe first
 seed-docker:
