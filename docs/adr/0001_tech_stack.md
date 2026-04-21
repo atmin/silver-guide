@@ -1,4 +1,4 @@
-# ADR-001: Tech Stack Selection
+# ADR-0001: Tech Stack Selection
 
 ## Status
 
