@@ -3,7 +3,7 @@ DJANGO  = $(PYTHON) manage.py
 PYTEST  = .venv/bin/pytest
 DOCKER ?= docker
 
-.PHONY: install migrate makemigrations dev up down reset-db logs test shell superuser seed
+.PHONY: install migrate makemigrations dev up down reset-db logs test shell superuser seed seed-docker
 
 # Create virtual environment and install dependencies
 install:
@@ -46,6 +46,12 @@ logs:
 test:
 	$(PYTEST)
 
+
+# Run tests via Docker (no local venv needed); starts db automatically
+test-docker:
+	$(DOCKER) compose up db -d
+	$(DOCKER) compose run web sh -c "python wait_for_db.py && pytest"
+
 # Open Django shell (local)
 shell:
 	$(DJANGO) shell
@@ -57,3 +63,8 @@ superuser:
 # Seed the database with sample data; pass FLUSH=1 to wipe first
 seed:
 	$(DJANGO) seed $(if $(FLUSH),--flush,)
+
+# Seed via Docker (no local venv needed); pass FLUSH=1 to wipe first
+seed-docker:
+	$(DOCKER) compose up db -d
+	$(DOCKER) compose run web sh -c "python wait_for_db.py && python manage.py seed $(if $(FLUSH),--flush,)"
