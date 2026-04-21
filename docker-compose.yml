@@ -9,6 +9,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootsecret}
     volumes:
       - db_data:/var/lib/mysql
+      # Scripts in /docker-entrypoint-initdb.d/ run automatically on first startup
       - ./docker/mariadb/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
       - "3306:3306"
