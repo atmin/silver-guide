@@ -27,8 +27,10 @@ def _bfs(root_id: int, cm: dict[int, list[int]]) -> list[int]:
     return result
 
 
-def _descendant_ids_for_id(root_id: int) -> list[int]:
+def _descendant_ids_for_id(root_id: int) -> list[int] | None:
     rows = list(Category.objects.values("id", "parent_id"))
+    if not any(r["id"] == root_id for r in rows):
+        return None
     return _bfs(root_id, _children_map(rows))
 
 
@@ -56,9 +58,10 @@ class ProductFilter(django_filters.FilterSet):
         return queryset.filter(Q(title__icontains=value) | Q(sku__icontains=value))
 
     def filter_category_id(self, queryset: QuerySet, name: str, value: int) -> QuerySet:
-        if not Category.objects.filter(id=value).exists():
+        ids = _descendant_ids_for_id(value)
+        if ids is None:
             raise NotFound(f"Category '{value}' not found.")
-        return queryset.filter(category_id__in=_descendant_ids_for_id(value))
+        return queryset.filter(category_id__in=ids)
 
     def filter_category_slug(
         self, queryset: QuerySet, name: str, value: str
