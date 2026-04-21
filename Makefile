@@ -3,7 +3,7 @@ DJANGO  = $(PYTHON) manage.py
 PYTEST  = .venv/bin/pytest
 DOCKER ?= docker
 
-.PHONY: install migrate makemigrations dev up down reset-db logs test shell superuser seed seed-docker
+.PHONY: install migrate makemigrations dev up down reset-db logs test shell superuser seed seed-docker typecheck
 
 # Create virtual environment and install dependencies
 install:
@@ -42,10 +42,13 @@ reset-db:
 logs:
 	$(DOCKER) compose logs -f $(SERVICE)
 
+# Run mypy type checks
+typecheck:
+	.venv/bin/mypy catalog/ core/
+
 # Run test suite (local, requires DB running)
 test:
 	$(PYTEST)
-
 
 # Run tests via Docker (no local venv needed); starts db automatically
 test-docker:
