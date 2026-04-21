@@ -77,10 +77,13 @@ class TestCategoryFilter:
         assert response.status_code == 200
         assert skus(response) == {"PRD-001", "PRD-002", "SIR-001", "SIR-002"}
 
-    def test_category_slug_unknown_returns_empty(self, api_client, products):
+    def test_category_slug_unknown_returns_404(self, api_client, products):
         response = api_client.get(URL, {"category_slug": "does-not-exist"})
-        assert response.status_code == 200
-        assert skus(response) == set()
+        assert response.status_code == 404
+
+    def test_category_id_unknown_returns_404(self, api_client, products):
+        response = api_client.get(URL, {"category_id": 99999})
+        assert response.status_code == 404
 
 
 @pytest.mark.django_db

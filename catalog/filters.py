@@ -3,6 +3,7 @@ from typing import Any
 
 import django_filters
 from django.db.models import Q, QuerySet
+from rest_framework.exceptions import NotFound
 
 from .models import Category, Product
 
@@ -55,6 +56,8 @@ class ProductFilter(django_filters.FilterSet):
         return queryset.filter(Q(title__icontains=value) | Q(sku__icontains=value))
 
     def filter_category_id(self, queryset: QuerySet, name: str, value: int) -> QuerySet:
+        if not Category.objects.filter(id=value).exists():
+            raise NotFound(f"Category '{value}' not found.")
         return queryset.filter(category_id__in=_descendant_ids_for_id(value))
 
     def filter_category_slug(
@@ -62,5 +65,5 @@ class ProductFilter(django_filters.FilterSet):
     ) -> QuerySet:
         ids = _descendant_ids_for_slug(value)
         if ids is None:
-            return queryset.none()
+            raise NotFound(f"Category '{value}' not found.")
         return queryset.filter(category_id__in=ids)
