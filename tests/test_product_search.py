@@ -59,7 +59,9 @@ class TestCategoryFilter:
         assert response.status_code == 200
         assert skus(response) == {"SIR-001", "SIR-002"}
 
-    def test_category_id_includes_descendants(self, api_client, products, category_tree):
+    def test_category_id_includes_descendants(
+        self, api_client, products, category_tree
+    ):
         root = category_tree["root"]
         response = api_client.get(URL, {"category_id": root.id})
         assert response.status_code == 200
@@ -102,7 +104,9 @@ class TestInactiveProducts:
         assert response.status_code == 200
         assert "HRA-INACTIVE" not in skus(response)
 
-    def test_inactive_excluded_from_category_filter(self, api_client, products, category_tree):
+    def test_inactive_excluded_from_category_filter(
+        self, api_client, products, category_tree
+    ):
         root = category_tree["root"]
         response = api_client.get(URL, {"category_id": root.id})
         assert response.status_code == 200

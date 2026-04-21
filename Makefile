@@ -1,9 +1,10 @@
 PYTHON  = .venv/bin/python
 DJANGO  = $(PYTHON) manage.py
 PYTEST  = .venv/bin/pytest
+BLACK   = .venv/bin/black
 DOCKER ?= docker
 
-.PHONY: install migrate makemigrations dev up down reset-db logs test shell superuser seed seed-docker typecheck
+.PHONY: install migrate makemigrations dev up down reset-db logs test shell superuser seed seed-docker typecheck fmt fmt-check
 
 # Create virtual environment and install dependencies
 install:
@@ -41,6 +42,14 @@ reset-db:
 # Tail logs; optionally pass SERVICE=web or SERVICE=db
 logs:
 	$(DOCKER) compose logs -f $(SERVICE)
+
+# Format all Python files with Black
+fmt:
+	$(BLACK) .
+
+# Check formatting without modifying files (for CI)
+fmt-check:
+	$(BLACK) --check .
 
 # Run mypy type checks
 typecheck:

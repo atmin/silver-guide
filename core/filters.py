@@ -14,7 +14,9 @@ _RESERVED_PARAMS = {"ordering", "page", "page_size", "cursor", "format"}
 class StrictDjangoFilterBackend(DjangoFilterBackend):
     """Raises 400 on unknown filter parameters and on invalid filter values."""
 
-    def filter_queryset(self, request: HttpRequest, queryset: QuerySet, view: APIView) -> QuerySet:
+    def filter_queryset(
+        self, request: HttpRequest, queryset: QuerySet, view: APIView
+    ) -> QuerySet:
         # DRF always passes its own Request subclass; cast so mypy knows query_params exists
         drf_request = cast(Request, request)
         filterset = self.get_filterset(drf_request, queryset, view)

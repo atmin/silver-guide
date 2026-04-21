@@ -35,14 +35,14 @@ class ProductFilter(django_filters.FilterSet):
         fields = ["q", "sku", "category_id", "category_slug", "price_min", "price_max"]
 
     def filter_q(self, queryset: QuerySet, name: str, value: str) -> QuerySet:
-        return queryset.filter(
-            Q(title__icontains=value) | Q(sku__icontains=value)
-        )
+        return queryset.filter(Q(title__icontains=value) | Q(sku__icontains=value))
 
     def filter_category_id(self, queryset: QuerySet, name: str, value: int) -> QuerySet:
         return queryset.filter(category_id__in=_descendant_ids(value))
 
-    def filter_category_slug(self, queryset: QuerySet, name: str, value: str) -> QuerySet:
+    def filter_category_slug(
+        self, queryset: QuerySet, name: str, value: str
+    ) -> QuerySet:
         try:
             root_id = Category.objects.values_list("id", flat=True).get(slug=value)
         except Category.DoesNotExist:

@@ -18,13 +18,35 @@ class CategoryViewSet(ModelViewSet):
 
 @extend_schema(
     parameters=[
-        OpenApiParameter("q", OpenApiTypes.STR, description="Search by title or SKU substring (case-insensitive)."),
-        OpenApiParameter("sku", OpenApiTypes.STR, description="Exact SKU match (case-insensitive)."),
-        OpenApiParameter("category_id", OpenApiTypes.INT, description="Return products in this category and all its descendants."),
-        OpenApiParameter("category_slug", OpenApiTypes.STR, description="Same as category_id but accepts a category slug instead of a numeric ID."),
-        OpenApiParameter("price_min", OpenApiTypes.DECIMAL, description="Minimum price (inclusive)."),
-        OpenApiParameter("price_max", OpenApiTypes.DECIMAL, description="Maximum price (inclusive)."),
-        OpenApiParameter("ordering", OpenApiTypes.STR, description="Sort field. Prefix with `-` for descending. Allowed: `price`, `created_at`, `title`."),
+        OpenApiParameter(
+            "q",
+            OpenApiTypes.STR,
+            description="Search by title or SKU substring (case-insensitive).",
+        ),
+        OpenApiParameter(
+            "sku", OpenApiTypes.STR, description="Exact SKU match (case-insensitive)."
+        ),
+        OpenApiParameter(
+            "category_id",
+            OpenApiTypes.INT,
+            description="Return products in this category and all its descendants.",
+        ),
+        OpenApiParameter(
+            "category_slug",
+            OpenApiTypes.STR,
+            description="Same as category_id but accepts a category slug instead of a numeric ID.",
+        ),
+        OpenApiParameter(
+            "price_min", OpenApiTypes.DECIMAL, description="Minimum price (inclusive)."
+        ),
+        OpenApiParameter(
+            "price_max", OpenApiTypes.DECIMAL, description="Maximum price (inclusive)."
+        ),
+        OpenApiParameter(
+            "ordering",
+            OpenApiTypes.STR,
+            description="Sort field. Prefix with `-` for descending. Allowed: `price`, `created_at`, `title`.",
+        ),
     ]
 )
 class ProductViewSet(ModelViewSet):

@@ -5,15 +5,15 @@ class Category(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True)
     parent = models.ForeignKey(
-        'self',
+        "self",
         null=True,
         blank=True,
-        related_name='children',
+        related_name="children",
         on_delete=models.PROTECT,
     )
 
     class Meta:
-        verbose_name_plural = 'categories'
+        verbose_name_plural = "categories"
 
     def __str__(self):
         return self.name
@@ -28,7 +28,7 @@ class Product(models.Model):
     category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
-        related_name='products',
+        related_name="products",
     )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
