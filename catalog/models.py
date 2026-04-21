@@ -1,3 +1,6 @@
+from decimal import Decimal
+
+from django.core.validators import MinValueValidator
 from django.db import models
 
 
@@ -24,7 +27,9 @@ class Product(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     image = models.URLField(blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(
+        max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal("0"))]
+    )
     category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
