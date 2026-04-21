@@ -4,7 +4,7 @@ URL = "/api/v1/products/"
 
 
 def skus(response):
-    return {p["sku"] for p in response.json()}
+    return {p["sku"] for p in response.json()["results"]}
 
 
 @pytest.mark.django_db
