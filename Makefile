@@ -3,7 +3,7 @@ DJANGO  = $(PYTHON) manage.py
 PYTEST  = .venv/bin/pytest
 DOCKER ?= docker
 
-.PHONY: install migrate makemigrations dev up down reset-db logs test shell superuser
+.PHONY: install migrate makemigrations dev up down reset-db logs test shell superuser seed
 
 # Create virtual environment and install dependencies
 install:
@@ -53,3 +53,7 @@ shell:
 # Create a Django superuser (local, interactive)
 superuser:
 	$(DJANGO) createsuperuser
+
+# Seed the database with sample data; pass FLUSH=1 to wipe first
+seed:
+	$(DJANGO) seed $(if $(FLUSH),--flush,)
