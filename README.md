@@ -117,4 +117,6 @@ Tree structure via a self-referential `parent` FK (adjacency list). Descendant t
 
 Key fields: `sku` (unique business key), `title`, `price`, `category`, `is_active`.
 
+`image` is an external URL (e.g. CDN-hosted). No file upload or media storage is handled by this service.
+
 `DELETE /api/v1/products/{id}/` does not remove the row — it sets `is_active=False` (soft delete). Inactive products are excluded from all list and filter results. See [ADR-0003](docs/adr/0003_product_model.md).
