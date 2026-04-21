@@ -15,8 +15,12 @@ class Category(models.Model):
         on_delete=models.PROTECT,
     )
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     class Meta:
         verbose_name_plural = "categories"
+        ordering = ["name"]
 
     def __str__(self):
         return self.name
