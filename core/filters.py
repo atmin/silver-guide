@@ -1,5 +1,3 @@
-from typing import cast
-
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django_filters.rest_framework import DjangoFilterBackend
@@ -17,14 +15,13 @@ class StrictDjangoFilterBackend(DjangoFilterBackend):
     def filter_queryset(
         self, request: HttpRequest, queryset: QuerySet, view: APIView
     ) -> QuerySet:
-        # DRF always passes its own Request subclass; cast so mypy knows query_params exists
-        drf_request = cast(Request, request)
-        filterset = self.get_filterset(drf_request, queryset, view)
+        assert isinstance(request, Request)
+        filterset = self.get_filterset(request, queryset, view)
         if filterset is None:
             return queryset
 
         unknown = (
-            set(drf_request.query_params) - set(filterset.filters) - _RESERVED_PARAMS
+            set(request.query_params) - set(filterset.filters) - _RESERVED_PARAMS
         )
         if unknown:
             raise ValidationError(
