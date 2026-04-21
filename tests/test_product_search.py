@@ -122,6 +122,63 @@ class TestInactiveProducts:
 
 
 @pytest.mark.django_db
+class TestOrdering:
+    def test_ordering_by_price_ascending(self, api_client, products):
+        response = api_client.get(URL, {"ordering": "price"})
+        assert response.status_code == 200
+        prices = [p["price"] for p in response.json()["results"]]
+        assert prices == sorted(prices)
+
+    def test_ordering_by_price_descending(self, api_client, products):
+        response = api_client.get(URL, {"ordering": "-price"})
+        assert response.status_code == 200
+        prices = [p["price"] for p in response.json()["results"]]
+        assert prices == sorted(prices, reverse=True)
+
+    def test_ordering_by_title(self, api_client, products):
+        response = api_client.get(URL, {"ordering": "title"})
+        assert response.status_code == 200
+        titles = [p["title"] for p in response.json()["results"]]
+        assert titles == sorted(titles)
+
+    def test_ordering_invalid_field_falls_back_to_default(self, api_client, products):
+        response = api_client.get(URL, {"ordering": "does_not_exist"})
+        assert response.status_code == 200
+        titles = [p["title"] for p in response.json()["results"]]
+        assert titles == sorted(titles)
+
+
+@pytest.mark.django_db
+class TestEdgeCases:
+    def test_q_no_matches_returns_empty(self, api_client, products):
+        response = api_client.get(URL, {"q": "there_is_no_match"})
+        assert response.status_code == 200
+        assert skus(response) == set()
+
+    def test_price_min_greater_than_price_max_returns_empty(self, api_client, products):
+        response = api_client.get(URL, {"price_min": "10.00", "price_max": "1.00"})
+        assert response.status_code == 200
+        assert skus(response) == set()
+
+    def test_category_slug_leaf_with_no_products_returns_empty(
+        self, api_client, category_tree
+    ):
+        response = api_client.get(URL, {"category_slug": "hrani-mlechni-sirena"})
+        assert response.status_code == 200
+        assert skus(response) == set()
+
+
+@pytest.mark.django_db
+class TestPaginationEnvelope:
+    def test_list_response_has_pagination_shape(self, api_client, products):
+        response = api_client.get(URL)
+        assert response.status_code == 200
+        data = response.json()
+        assert {"count", "next", "previous", "results"} <= data.keys()
+        assert isinstance(data["results"], list)
+
+
+@pytest.mark.django_db
 class TestUnknownFilterParam:
     def test_unknown_param_returns_400(self, api_client, products):
         response = api_client.get(URL, {"category": "1"})
