@@ -81,6 +81,8 @@ make test-docker
 | GET, POST | `/api/v1/products/` | List / create products |
 | GET, PUT, PATCH, DELETE | `/api/v1/products/{id}/` | Retrieve / update / soft-delete a product |
 
+Write operations (POST, PUT, PATCH, DELETE) require a session-authenticated user — log in via the Django admin at `/admin/` with the superuser created by `make superuser`.
+
 ### Product search — `GET /api/v1/products/`
 
 | Parameter | Type | Description |
