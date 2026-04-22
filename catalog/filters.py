@@ -8,37 +8,40 @@ from rest_framework.exceptions import NotFound
 from .models import Category, Product
 
 
-def _children_map(rows: list[Any]) -> dict[int, list[int]]:
-    """Build a parent_id → [child_id, ...] map from a flat list of category rows."""
+def _parent_children(rows: list[Any]) -> dict[int, list[int]]:
+    """Build a parent_id → [child_id, ...] map from a flat list of rows."""
     cm: dict[int, list[int]] = {}
     for r in rows:
         cm.setdefault(r["parent_id"], []).append(r["id"])
     return cm
 
 
-def _bfs(root_id: int, cm: dict[int, list[int]]) -> list[int]:
-    """Return root_id plus all descendant IDs via breadth-first traversal of cm."""
+def _breadth_first_traversal(
+    from_id: int, parent_children: dict[int, list[int]]
+) -> list[int]:
+    """Return from_id plus all descendant IDs via breadth-first traversal of parent_children."""
     result: list[int] = []
-    queue: deque[int] = deque([root_id])
+    queue: deque[int] = deque([from_id])
     while queue:
         current = queue.popleft()
         result.append(current)
-        queue.extend(cm.get(current, []))
+        queue.extend(parent_children.get(current, []))
     return result
 
 
-def _descendant_ids_for_id(root_id: int) -> list[int] | None:
+def _descendants_for_id(for_id: int) -> list[int] | None:
     rows = list(Category.objects.values("id", "parent_id"))
-    if not any(r["id"] == root_id for r in rows):
-        return None
-    return _bfs(root_id, _children_map(rows))
+    for r in rows:
+        if r["id"] == for_id:
+            return _breadth_first_traversal(r["id"], _parent_children(rows))
+    return None
 
 
-def _descendant_ids_for_slug(slug: str) -> list[int] | None:
+def _descendants_for_slug(for_slug: str) -> list[int] | None:
     rows = list(Category.objects.values("id", "slug", "parent_id"))
     for r in rows:
-        if r["slug"] == slug:
-            return _bfs(r["id"], _children_map(rows))
+        if r["slug"] == for_slug:
+            return _breadth_first_traversal(r["id"], _parent_children(rows))
     return None
 
 
@@ -58,7 +61,7 @@ class ProductFilter(django_filters.FilterSet):
         return queryset.filter(Q(title__icontains=value) | Q(sku__icontains=value))
 
     def filter_category_id(self, queryset: QuerySet, name: str, value: int) -> QuerySet:
-        ids = _descendant_ids_for_id(value)
+        ids = _descendants_for_id(value)
         if ids is None:
             raise NotFound(f"Category '{value}' not found.")
         return queryset.filter(category_id__in=ids)
@@ -66,7 +69,7 @@ class ProductFilter(django_filters.FilterSet):
     def filter_category_slug(
         self, queryset: QuerySet, name: str, value: str
     ) -> QuerySet:
-        ids = _descendant_ids_for_slug(value)
+        ids = _descendants_for_slug(value)
         if ids is None:
             raise NotFound(f"Category '{value}' not found.")
         return queryset.filter(category_id__in=ids)
