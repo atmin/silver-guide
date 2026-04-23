@@ -44,7 +44,7 @@ Preferred for active development: faster restarts, local debugger, no rebuilds.
 
 ```bash
 cp .env.example .env          # DB_HOST is already set to 127.0.0.1
-make up db                    # start MariaDB only
+make db                       # start MariaDB only
 make install                  # create .venv/ and install dependencies
 make migrate                  # apply migrations
 make superuser                # create admin user (interactive)

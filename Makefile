@@ -4,7 +4,7 @@ PYTEST  = .venv/bin/pytest
 BLACK   = .venv/bin/black
 DOCKER ?= docker
 
-.PHONY: install migrate makemigrations dev up down reset-db logs test shell superuser seed seed-docker typecheck fmt fmt-check prod
+.PHONY: install migrate makemigrations dev up db down reset-db logs test shell superuser seed seed-docker typecheck fmt fmt-check prod
 
 # Create virtual environment and install dependencies
 install:
@@ -28,6 +28,11 @@ dev:
 # Start full stack in Docker (rebuilds image if changed)
 up:
 	$(DOCKER) compose up --build
+
+# Start only the database (for local dev / debugger sessions)
+db:
+	$(DOCKER) compose up db -d
+	$(PYTHON) wait_for_db.py
 
 # Stop all Docker services and remove containers
 down:
